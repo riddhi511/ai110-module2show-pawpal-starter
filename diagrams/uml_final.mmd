@@ -1,0 +1,53 @@
+%% PawPal+ -- Phase 6 final UML
+%% Updated to match the actual implementation in pawpal_system.py:
+%% - Task gained pet_name, priority, and due_date (needed for conflict
+%%   detection and recurrence, which weren't in the original draft).
+%% - Scheduler grew from 2 methods to a full set of sorting/filtering/
+%%   recurrence/conflict methods, and holds a direct reference to Owner
+%%   instead of just "reading from" it.
+
+classDiagram
+    class Task {
+        +string description
+        +string time
+        +string pet_name
+        +string frequency
+        +string priority
+        +date due_date
+        +bool completed
+        +mark_complete()
+        +next_occurrence() Task
+    }
+
+    class Pet {
+        +string name
+        +string species
+        +List~Task~ tasks
+        +add_task(task)
+        +task_count() int
+    }
+
+    class Owner {
+        +string name
+        +List~Pet~ pets
+        +add_pet(pet)
+        +get_pet(pet_name) Pet
+        +get_all_tasks() List~Task~
+    }
+
+    class Scheduler {
+        +Owner owner
+        +get_all_tasks() List~Task~
+        +sort_by_time(tasks) List~Task~
+        +sort_by_priority_then_time(tasks) List~Task~
+        +filter_by_status(completed, tasks) List~Task~
+        +filter_by_pet(pet_name, tasks) List~Task~
+        +mark_task_complete(task) Task
+        +detect_conflicts(tasks) List~string~
+        +today_schedule() List~Task~
+    }
+
+    Owner "1" o-- "0..*" Pet : owns
+    Pet "1" o-- "0..*" Task : has
+    Scheduler "1" --> "1" Owner : reads/updates
+    Scheduler ..> Task : creates on recurrence
